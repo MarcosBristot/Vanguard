@@ -1,8 +1,10 @@
 package com.vanguard.vanguard.controller;
 
+import com.vanguard.vanguard.dto.PortfolioDto;
 import com.vanguard.vanguard.model.Transaction;
 import com.vanguard.vanguard.repository.TransactionRepository;
 import com.vanguard.vanguard.repository.UserRepository;
+import com.vanguard.vanguard.service.PortfolioService;
 import com.vanguard.vanguard.service.PriceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,9 @@ public class TransactionController {
     private PriceService priceService;
 
     @Autowired
+    private PortfolioService portfolioService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @GetMapping
@@ -37,6 +42,12 @@ public class TransactionController {
     public Double getAssetPrice(@PathVariable String asset) {
         return priceService.getCryptoPrice(asset.toLowerCase());
     }
+
+    @GetMapping("/portfolio/{userId}")
+    public List<PortfolioDto> getUserPortfolio(@PathVariable Long userId) {
+        return portfolioService.getUserPortfolio(userId);
+    }
+
 
     @PostMapping
     public Transaction createTransaction(@RequestBody Transaction transaction) {
