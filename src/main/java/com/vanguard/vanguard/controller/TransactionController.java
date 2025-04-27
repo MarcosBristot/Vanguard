@@ -3,6 +3,7 @@ package com.vanguard.vanguard.controller;
 import com.vanguard.vanguard.model.Transaction;
 import com.vanguard.vanguard.repository.TransactionRepository;
 import com.vanguard.vanguard.repository.UserRepository;
+import com.vanguard.vanguard.service.PriceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,9 @@ public class TransactionController {
     private TransactionRepository transactionRepository;
 
     @Autowired
+    private PriceService priceService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @GetMapping
@@ -29,8 +33,16 @@ public class TransactionController {
         return transactionRepository.findByUserId(userId);
     }
 
+    @GetMapping("/price/{asset}")
+    public Double getAssetPrice(@PathVariable String asset) {
+        return priceService.getCryptoPrice(asset.toLowerCase());
+    }
+
     @PostMapping
     public Transaction createTransaction(@RequestBody Transaction transaction) {
+        if (transaction.getUnitPrice() == null || transaction.getUnitPrice() <= 0) {
+            transaction.setUnitPrice(priceService.getCryptoPrice(transaction.getAsset().toLowerCase()));
+        }
         transaction.setTransactionDate(LocalDateTime.now());
         return transactionRepository.save(transaction);
     }
