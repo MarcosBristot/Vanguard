@@ -2,6 +2,7 @@ package com.vanguard.vanguard.controller;
 
 import com.vanguard.vanguard.dto.PerformanceDto;
 import com.vanguard.vanguard.service.PortfolioService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,23 +18,33 @@ public class PortfolioController {
         this.portfolioService = portfolioService;
     }
 
+    // Endpoint para obter o portfolio de um usuário
     @GetMapping("/{userId}")
     public ResponseEntity<List<PerformanceDto>> getPortfolio(@PathVariable Long userId) {
         try {
             List<PerformanceDto> portfolio = portfolioService.getPortfolioPerformance(userId);
+
             if (portfolio.isEmpty()) {
-                return ResponseEntity.noContent().build();
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 204 No Content
             }
-            return ResponseEntity.ok(portfolio);
+            return ResponseEntity.ok(portfolio);  // 200 OK com dados
+
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // 500 Internal Server Error
         }
     }
 
+    // Endpoint para obter a performance de um portfolio
     @GetMapping("/performance/{userId}")
     public ResponseEntity<List<PerformanceDto>> getPortfolioPerformance(@PathVariable Long userId) {
-        List<PerformanceDto> performance = portfolioService.getPortfolioPerformance(userId);
-        return ResponseEntity.ok(performance);
+        try {
+            List<PerformanceDto> performance = portfolioService.getPortfolioPerformance(userId);
+            if (performance.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 204 No Content
+            }
+            return ResponseEntity.ok(performance);  // 200 OK com dados
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // 404 User Not Found caso a exceção seja disparada
+        }
     }
 }
-
